@@ -51,12 +51,12 @@ Create the target identity schema framework and deploy source sequences in depen
 
 ```bash
 # Create the necessary target user profile 
-psql "host=<postgres-host> port=5432 dbname=postgres user=<username> sslmode=require" \
+psql "host=<postgres-host> port=5432 dbname=<dbname> user=<username> sslmode=require" \
   -v ON_ERROR_STOP=1 -c "CREATE ROLE saleslt LOGIN PASSWORD '<password>';"
 
 # Extract and apply relational Sequences
 ora2pg -M -p -t SEQUENCE -o sequence.sql -b ./schema/sequences -c sqlserver_to_postgres.conf
-psql "host=<postgres-host>  port=5432 dbname=postgres user=<username> sslmode=require" \
+psql "host=<postgres-host>  port=5432 dbname=<dbname> user=<username> sslmode=require" \
   -v ON_ERROR_STOP=1 -f ./schema/sequences/sequence.sql
 ```
 
@@ -65,14 +65,14 @@ Export the table structures to file, clean up known engine translation artifacts
 
 ```bash
 # Export tables to disk
-ora2pg -M -t TABLE -o table.sql -b ./schema/tables -c config/sqlserver_to_postgres.conf
+ora2pg -M -t TABLE -o table.sql -b ./schema/tables -c sqlserver_to_postgres.conf
 
 # Patch invalid collation and encoding markers
 sed -i 's/ COLLATE 0//g' ./schema/tables/table.sql
 sed -i "s/client_encoding TO 'LATIN1'/client_encoding TO 'UTF8'/" ./schema/tables/table.sql
 
 # Import cleaned base relations
-psql "host=<postgres-host>  port=5432 dbname=postgres user=<username> sslmode=require" \
+psql "host=<postgres-host>  port=5432 dbname=<dbname> user=<username> sslmode=require" \
   -v ON_ERROR_STOP=1 -L ./schema/tables/import_tables.log -f ./schema/tables/table.sql
 ```
 
@@ -81,7 +81,7 @@ Stream data directly from SQL Server to Azure PostgreSQL. This utilizes the conf
 
 ```bash
 # This streams directly to the target DSN; it does not require a manual psql execution pass
-ora2pg -M -t COPY -o data.sql -b ./data -c config/sqlserver_to_postgres.conf
+ora2pg -M -t COPY -o data.sql -b ./data -c sqlserver_to_postgres.conf
 ```
 
 ### Phase 6: Apply Hand-Ported Logical Views
@@ -89,7 +89,7 @@ Deploy the custom, optimized views (including the recursive CTE and XQuery/XPath
 
 ```bash
 for view_file in sql/views/*.sql; do
-  psql "host=<postgres-host>  port=5432 dbname=postgres user=<username> sslmode=require" \
+  psql "host=<postgres-host>  port=5432 dbname=<dbname> user=<username> sslmode=require" \
     -v ON_ERROR_STOP=1 -f "$view_file"
 done
 ```
@@ -98,7 +98,7 @@ done
 Execute an active schema and row count verification audit to guarantee data integrity across both database environments.
 
 ```bash
-ora2pg -M -t TEST -c config/sqlserver_to_postgres.conf > validation_diff.txt
+ora2pg -M -t TEST -c sqlserver_to_postgres.conf > validation_diff.txt
 ```
 
 ---
