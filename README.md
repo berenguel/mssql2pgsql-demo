@@ -40,10 +40,10 @@ Validate catalog connectivity and generate the migration complexity and cost est
 
 ```bash
 # Test catalog scanning visibility
-ora2pg -M -t SHOW_TABLE -c config/sqlserver_to_postgres.conf
+ora2pg -M -t SHOW_TABLE -c sqlserver_to_postgres.conf
 
 # Generate formal HTML effort matrix
-ora2pg -M -t SHOW_REPORT -c config/sqlserver_to_postgres.conf --cost_unit_value 10 --dump_as_html --estimate_cost > migration_report.html
+ora2pg -M -t SHOW_REPORT -c sqlserver_to_postgres.conf --cost_unit_value 10 --dump_as_html --estimate_cost > migration_report.html
 ```
 
 ### Phase 3: Create Target Roles & Sequences
@@ -55,7 +55,7 @@ psql "host=<postgres-host> port=5432 dbname=postgres user=<username> sslmode=req
   -v ON_ERROR_STOP=1 -c "CREATE ROLE saleslt LOGIN PASSWORD '<password>';"
 
 # Extract and apply relational Sequences
-ora2pg -M -p -t SEQUENCE -o sequence.sql -b ./schema/sequences -c config/sqlserver_to_postgres.conf
+ora2pg -M -p -t SEQUENCE -o sequence.sql -b ./schema/sequences -c sqlserver_to_postgres.conf
 psql "host=<postgres-host>  port=5432 dbname=postgres user=<username> sslmode=require" \
   -v ON_ERROR_STOP=1 -f ./schema/sequences/sequence.sql
 ```
