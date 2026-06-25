@@ -77,7 +77,7 @@ psql "host=<postgres-host>  port=5432 dbname=<dbname> user=<username> sslmode=re
 ```
 
 ### Phase 5: Fast Bulk Data Loading
-Stream data directly from SQL Server to Azure PostgreSQL. This utilizes the configuration's `PG_INITIAL_COMMAND` to safely bypass live foreign key evaluation order via replication roles.
+Copy data directly from SQL Server to Azure PostgreSQL (offline). This utilizes the configuration's `PG_INITIAL_COMMAND` to safely bypass live foreign key evaluation order via replication roles.
 
 ```bash
 # This streams directly to the target DSN; it does not require a manual psql execution pass
